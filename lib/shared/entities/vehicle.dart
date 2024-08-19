@@ -1,7 +1,9 @@
 class Vehicle {
   final String brand;
   final String model;
-  final FuelType fuel;
+  final String? year;
+  final String fuel;
+  final String gear;
 
   final String numberPlate;
 
@@ -11,6 +13,8 @@ class Vehicle {
     required this.brand,
     required this.model,
     required this.fuel,
+    required this.year,
+    required this.gear,
     required this.numberPlate,
     required this.color,
   });
@@ -20,6 +24,8 @@ class Vehicle {
       'brand': brand,
       'model': model,
       'fuel': fuel,
+      'year': year ?? '2020',
+      'gear': gear,
       'numberPlate': numberPlate,
       'color': color,
     };
@@ -29,17 +35,21 @@ class Vehicle {
     return Vehicle(
       brand: map['brand'] as String,
       model: map['model'] as String,
-      fuel: map['fuel'] as FuelType,
+      gear: map['gear'] as String,
+      year: map['year'] ?? '2020',
+      fuel: map['fuel'] as String,
       numberPlate: map['numberPlate'] as String,
       color: map['color'] as String,
     );
   }
 
   factory Vehicle.initial() {
-    return const Vehicle(
+    return Vehicle(
       brand: '',
       model: '',
-      fuel: FuelType.diesel,
+      year: '',
+      gear: '',
+      fuel: '${FuelType.diesel}',
       numberPlate: '',
       color: '',
     );

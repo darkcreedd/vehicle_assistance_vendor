@@ -76,8 +76,8 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
                 const SizedBox(height: 10),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 300),
-                  child: const Text(
-                    "We sent a 6 digit verification code to this phone number",
+                  child: Text(
+                    "We sent a 6 digit verification code to [${widget.phone}]",
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -110,6 +110,15 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
                     icon: loading
                         ? const SizedBox.shrink()
                         : const Icon(IconlyBold.arrowRight),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    "Back",
+                    style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ],

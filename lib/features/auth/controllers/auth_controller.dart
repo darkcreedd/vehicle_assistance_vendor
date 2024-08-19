@@ -30,7 +30,7 @@ class AuthController {
         verificationFailed: (error) {
           if (!context.mounted) return;
           onError?.call();
-          print(error);
+          debugPrint("from auth_controller $error");
           ScaffoldMessenger.of(context)
             ..hideCurrentMaterialBanner()
             ..showSnackBar(SnackBar(content: Text("${error.message}")));
@@ -78,17 +78,17 @@ class AuthController {
               builder: (context) => const AccountSetupPage(),
             ));
       } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const RootAppPage(),
-          ),
-        );
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const RootAppPage(),
+            ),
+            (route) => false);
       }
     } catch (e) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text("${e.toString()}")));
+        ..showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 }

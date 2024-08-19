@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '/shared/entities/vehicle.dart';
 
 class AppUser {
   final String id;
@@ -8,19 +7,19 @@ class AppUser {
 
   final Timestamp createdAt;
 
-  final Vehicle? vehicle;
+  // final WorkShop? workShop;
 
   AppUser({
     required this.id,
     required this.name,
     required this.phone,
     required this.createdAt,
-    this.vehicle,
+    // this.workShop,
   });
 
   @override
   String toString() {
-    return 'AppUser{id: $id, name: $name, phone: $phone, createdAt: $createdAt, vehicle: $vehicle}';
+    return 'AppUser{id: $id, name: $name, phone: $phone, createdAt: $createdAt, }';
   }
 
   String get initials {
@@ -33,6 +32,7 @@ class AppUser {
       'name': name,
       'phone': phone,
       'createdAt': createdAt,
+      // 'workShop': workShop
     };
   }
 
@@ -42,9 +42,7 @@ class AppUser {
       name: map['name'] as String,
       phone: map['phone'] as String,
       createdAt: map['createdAt'] as Timestamp,
-      vehicle: map['vehicle'] != null
-          ? Vehicle.fromMap(map['vehicle'] as Map<String, dynamic>)
-          : null,
+      // workShop: map['workShop']
     );
   }
 
@@ -54,7 +52,7 @@ class AppUser {
       name: "",
       phone: "",
       createdAt: Timestamp.now(),
-      vehicle: null,
+      // workShop: null,
     );
   }
 
@@ -63,14 +61,14 @@ class AppUser {
     String? name,
     String? phone,
     Timestamp? createdAt,
-    Vehicle? vehicle,
+    // WorkShop? vehicle,
   }) {
     return AppUser(
       id: id ?? this.id,
       name: name ?? this.name,
       phone: phone ?? this.phone,
       createdAt: createdAt ?? this.createdAt,
-      vehicle: vehicle ?? this.vehicle,
+      // workShop: workShop ?? workShop,
     );
   }
 }

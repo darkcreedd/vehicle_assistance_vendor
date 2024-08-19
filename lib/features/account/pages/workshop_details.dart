@@ -1,75 +1,22 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
+import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:vehicle_assistance_vendor/shared/providers/account_provider.dart';
 import '/features/account/pages/reviews_page.dart';
 import '/features/services/add_services_page.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class MyWorkShopPage extends StatefulWidget {
+import 'workshop_edit_page.dart';
+
+class MyWorkShopPage extends ConsumerWidget {
   const MyWorkShopPage({super.key});
 
   @override
-  State<MyWorkShopPage> createState() => _MyWorkShopPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appUserData = ref.read(accountProvider).value;
 
-class _MyWorkShopPageState extends State<MyWorkShopPage> {
-  final Map<String, bool> _isSelected = {
-    'Monday': false,
-    'Tuesday': false,
-    'Wednesday': false,
-    'Thursday': false,
-    'Friday': false,
-    'Saturday': false,
-    'Sunday': false,
-  };
-
-  final Map<String, TimeOfDay> _openingTimes = {
-    'Monday': const TimeOfDay(hour: 0, minute: 0),
-    'Tuesday': const TimeOfDay(hour: 0, minute: 0),
-    'Wednesday': const TimeOfDay(hour: 0, minute: 0),
-    'Thursday': const TimeOfDay(hour: 0, minute: 0),
-    'Friday': const TimeOfDay(hour: 0, minute: 0),
-    'Saturday': const TimeOfDay(hour: 0, minute: 0),
-    'Sunday': const TimeOfDay(hour: 0, minute: 0),
-  };
-
-  final Map<String, TimeOfDay> _closingTimes = {
-    'Monday': const TimeOfDay(hour: 0, minute: 0),
-    'Tuesday': const TimeOfDay(hour: 0, minute: 0),
-    'Wednesday': const TimeOfDay(hour: 0, minute: 0),
-    'Thursday': const TimeOfDay(hour: 0, minute: 0),
-    'Friday': const TimeOfDay(hour: 0, minute: 0),
-    'Saturday': const TimeOfDay(hour: 0, minute: 0),
-    'Sunday': const TimeOfDay(hour: 0, minute: 0),
-  };
-
-  void _selectTime(String day, bool isOpening) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: isOpening ? _openingTimes[day]! : _closingTimes[day]!,
-    );
-
-    if (picked != null) {
-      final int hour = picked.hourOfPeriod;
-      final String period = picked.period.name;
-      final TimeOfDay formattedTime =
-          TimeOfDay(hour: hour, minute: picked.minute);
-      setState(() {
-        if (isOpening) {
-          _openingTimes[day] = formattedTime;
-        } else {
-          _closingTimes[day] = formattedTime;
-        }
-      });
-      final String formattedHour = DateFormat.jm()
-          .format(DateTime(2022, 1, 1, picked.hour, picked.minute));
-      print('Selected time: $formattedHour');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -92,21 +39,40 @@ class _MyWorkShopPageState extends State<MyWorkShopPage> {
               fit: BoxFit.cover,
               width: double.maxFinite,
               height: 270,
-              imageUrl:
-                  "https://images.pexels.com/photos/190537/pexels-photo-190537.jpeg?auto=compress&cs=tinysrgb&w=800",
+              imageUrl: appUserData?.image ?? "",
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "KNUST Mechanic Shop",
+                    appUserData?.workshopName ?? "",
                     style: theme.textTheme.bodyLarge
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const Text("Kumasi - Tech Junction"),
+                  FutureBuilder<String>(
+                    future: getAddressFromLatLng(
+                      appUserData?.latitude ?? 0,
+                      appUserData?.longitude ??
+                          0, // added default value for longitude
+                    ),
+                    builder: (context, snapshot) {
+                      print(
+                          "lat ${appUserData?.latitude} long ${appUserData?.latitude}");
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasData) {
+                          return Text(snapshot.data!); // added null safety
+                        } else {
+                          print(snapshot.error);
+                          return const Text("No data");
+                        }
+                      } else {
+                        return const Text("Loading...");
+                      }
+                    },
+                  ),
                   Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,11 +98,8 @@ class _MyWorkShopPageState extends State<MyWorkShopPage> {
                       TextButton(
                           onPressed: () {
                             showCupertinoModalBottomSheet(
-                              context: context,
-                              builder: (context) {
-                                return const AddServicesPage();
-                              },
-                            );
+                                context: context,
+                                builder: (_) => const AddServicesPage());
                           },
                           child: const Text("Edit Services"))
                     ],
@@ -146,110 +109,72 @@ class _MyWorkShopPageState extends State<MyWorkShopPage> {
                     height: 10,
                   ),
                   Text(
-                    "Working Hours",
+                    "Working Days",
                     style: theme.textTheme.bodyLarge
                         ?.copyWith(fontWeight: FontWeight.bold),
                   )
                 ],
               ),
             ),
-            SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.8,
-              child: ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _isSelected.length,
-                itemBuilder: (context, index) {
-                  final day = _isSelected.keys.elementAt(index);
-                  return Column(
-                    children: [
-                      CheckboxListTile(
-                        value: _isSelected[day]!,
-                        onChanged: (value) {
-                          setState(() {
-                            _isSelected[day] = value!;
-                          });
-                        },
-                        title: Text(day),
-                      ),
-                      if (_isSelected[day]!)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () {
-                                  _selectTime(day, true);
-                                },
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text("Opens At"),
-                                    Container(
-                                      width: 80,
-                                      height: 30,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 8),
-                                      decoration:
-                                          BoxDecoration(border: Border.all()),
-                                      child: Text(
-                                          '${_openingTimes[day]!.hour}:${_openingTimes[day]!.minute.toString().padLeft(2, '0')} ${_openingTimes[day]!.period.name.toUpperCase()}'),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onTap: () {
-                                      _selectTime(day, false);
-                                    },
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text("Closes At"),
-                                        Container(
-                                          width: 80,
-                                          height: 30,
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 4, horizontal: 8),
-                                          decoration: BoxDecoration(
-                                              border: Border.all()),
-                                          child: Text(
-                                              '${_closingTimes[day]!.hour}:${_closingTimes[day]!.minute.toString().padLeft(2, '0')} ${_closingTimes[day]!.period.name.toUpperCase()}'),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Divider(),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )
-                    ],
-                  );
-                },
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 16, right: 16, top: 10, bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(((appUserData?.openingdates['startDay'] !=
+                          appUserData?.openingdates['endDay']))
+                      ? "${appUserData?.openingdates['startDay']}  -  ${appUserData?.openingdates['endDay']}"
+                      : "${appUserData?.openingdates['startDay']}s only")
+                ],
               ),
-            )
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Text(
+                "Working Hours",
+                style: theme.textTheme.bodyLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
+              child: Row(
+                children: [
+                  Text(
+                      "${appUserData?.openingdates['startTime']} - ${appUserData?.openingdates['endTime']}"),
+                ],
+              ),
+            ),
+            Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                child: FilledButton.icon(
+                  onPressed: () {
+                    showCupertinoModalBottomSheet(
+                        context: context,
+                        builder: (_) => const WorkShopEditPage());
+                  },
+                  label: const Text("Edit"),
+                  icon: const Icon(IconlyBold.edit),
+                ))
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print("Opening Times: $_openingTimes");
-          print("Closing Times: $_closingTimes");
-          print("Available Days: $_isSelected");
-        },
-        child: const Icon(Icons.save),
-      ),
     );
   }
+}
+
+Future<String> getAddressFromLatLng(double? latitude, double? longitude) async {
+  if (latitude == null || longitude == null) {
+    return "Unknown location";
+  }
+
+  List<Placemark> placemarks =
+      await placemarkFromCoordinates(latitude, longitude);
+  Placemark place = placemarks[0];
+
+  return "${place.street ?? ""}, ${place.subLocality ?? ""}, ${place.locality ?? ""},${place.country}"
+      .trim()
+      .replaceAll(RegExp(r'^,|,$'), '');
 }

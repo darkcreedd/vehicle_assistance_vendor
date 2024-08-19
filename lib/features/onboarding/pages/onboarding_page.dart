@@ -23,20 +23,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
     OnboardingItem(
       title: "Emergency Vehicle Assistance",
       description:
-          "Get immediate help on the road and stay safe with our emergency response features",
-      image: "assets/driver.png",
+          "Provide immediate road assistance  to stranded vehicle owners and get paid for your services.",
+      image: "assets/car_parts.png",
     ),
     OnboardingItem(
-      title: "Find & Book Services",
+      title: "Schedule Appointments With Clients",
       description:
-          "Locate nearby repair shops, painting services, and more for all your vehicle needs",
-      image: "assets/car_crash.png",
+          "Accept appointment schedules from clients and make some steady income.",
+      image: "assets/book.png",
     ),
     OnboardingItem(
-      title: "Easy Booking",
+      title: "Get Started",
       description:
-          "Schedule vehicle services effortlessly for a stress-free experience.",
-      image: "assets/driver.png",
+          "Set up an account with us and let's get you connected to clients effortlessly.",
+      image: "assets/get_started.png",
     ),
   ];
 
@@ -71,7 +71,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     right: 12,
                     bottom: mediaQuery.viewPadding.bottom + 14),
                 width: double.maxFinite,
-                height: 220,
+                height: 250,
                 decoration: BoxDecoration(
                   color: isDarkMode ? const Color(0xFF1D1F25) : Colors.white,
                   borderRadius: const BorderRadius.only(
@@ -87,6 +87,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   children: [
                     Text(
                       onboardingItem.title,
+                      textAlign: TextAlign.center,
                       style: theme.textTheme.titleLarge
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),

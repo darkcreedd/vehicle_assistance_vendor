@@ -1,8 +1,10 @@
+// ignore_for_file: avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '/shared/entities/vehicle.dart';
+import 'package:vehicle_assistance_vendor/features/onboarding/pages/set_workshop_details.page.dart';
 import '/shared/utils/location.dart';
 
 import '../../../shared/utils/constants.dart';
@@ -23,19 +25,16 @@ class _AccountSetupPageState extends ConsumerState<AccountSetupPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       determinePosition().then((value) => print(value)).catchError((e) {
-        print(e);
+        debugPrint("from account_setup_page $e");
       });
     });
   }
 
   String fullName = "";
-  String brand = "";
-  String model = "";
-  String numberPlate = "";
-  String color = "";
-
-  FuelType fuel = FuelType.petrol;
-  GearType gear = GearType.manual;
+  String workShopName = "";
+  String phoneNumber =
+      FirebaseAuth.instance.currentUser?.phoneNumber ?? "050 0000000";
+  String serviceType = "Mechanic";
 
   Future<void> setupAccount() async {
     if (!formKey.currentState!.validate()) {
@@ -54,19 +53,6 @@ class _AccountSetupPageState extends ConsumerState<AccountSetupPage> {
         );
       return;
     }
-    // final user = AppUser(
-    //   id: auth.currentUser!.uid,
-    //   name: fullName,
-    //   phone: auth.currentUser!.phoneNumber!,
-    //   createdAt: Timestamp.now(),
-    //   vehicle: Vehicle(
-    //       brand: brand,
-    //       model: model,
-    //       numberPlate: numberPlate,
-    //       color: color,
-    //       fuel: fuel),
-    // );
-    // ref.read(accountProvider.notifier).createProfile(user);
 
     Navigator.pushAndRemoveUntil(
       context,
@@ -85,14 +71,14 @@ class _AccountSetupPageState extends ConsumerState<AccountSetupPage> {
           padding: const EdgeInsets.only(top: 30, left: 16, right: 16),
           children: [
             Text(
-              "Finish Account Setup",
+              "Let's take you through the steps for registration.",
               style: theme.textTheme.titleLarge
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 5),
             const Text("Complete these tasks to get the most out of this app"),
             const Text(
-                "This information will be shared with Emergency Assistance and shop owners when you book appointments"),
+                "This information will be shared with all customers in need of your assistance."),
             const SizedBox(height: 30),
             ChipTheme(
               data: theme.chipTheme.copyWith(
@@ -144,7 +130,7 @@ class _AccountSetupPageState extends ConsumerState<AccountSetupPage> {
                     Padding(
                       padding: const EdgeInsets.only(top: 30, bottom: 15),
                       child: Text(
-                        "Vehicle Information",
+                        "Workshop Information",
                         style: theme.textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
@@ -152,119 +138,61 @@ class _AccountSetupPageState extends ConsumerState<AccountSetupPage> {
                     TextFormField(
                       validator: (value) {
                         return value!.isEmpty
-                            ? "Please enter your vehicle brand"
+                            ? "Please enter your Workshop name"
                             : null;
                       },
-                      onChanged: (value) => brand = value,
+                      onChanged: (value) => workShopName = value,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       decoration: const InputDecoration(
-                        labelText: "Brand",
-                        hintText: "Eg. Honda, Toyota, Kia",
+                        labelText: "Workshop Name",
+                        hintText: "KNUST Mechanic Shop",
                       ),
-                    ),
-                    const SizedBox(height: 15),
-                    TextFormField(
-                      validator: (value) {
-                        return value!.isEmpty
-                            ? "Please enter your vehicle model"
-                            : null;
-                      },
-                      onChanged: (value) => model = value,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: const InputDecoration(
-                        labelText: "Model",
-                        hintText: "Eg. Civic, Corolla, K5",
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    TextFormField(
-                      validator: (value) {
-                        return value!.isEmpty
-                            ? "Please enter your vehicle number plate"
-                            : null;
-                      },
-                      onChanged: (value) => numberPlate = value,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: const InputDecoration(
-                        labelText: "Number Plate",
-                        hintText: "Eg. GT-4332",
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    TextFormField(
-                      validator: (value) {
-                        return value!.isEmpty
-                            ? "Please enter your vehicle color"
-                            : null;
-                      },
-                      onChanged: (value) => color = value,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: const InputDecoration(
-                        labelText: "Color",
-                        hintText: "Eg. Black, White, Silver",
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ChoiceChip(
-                          label: Text(FuelType.petrol.name),
-                          selected: fuel == FuelType.petrol,
-                          onSelected: (value) {
-                            setState(() {
-                              fuel = FuelType.petrol;
-                            });
-                          },
-                          avatar: const Icon(Icons.local_gas_station),
-                        ),
-                        ChoiceChip(
-                          label: Text(FuelType.diesel.name),
-                          selected: fuel == FuelType.diesel,
-                          onSelected: (value) {
-                            setState(() {
-                              fuel = FuelType.diesel;
-                            });
-                          },
-                          avatar: const Icon(Icons.local_gas_station),
-                        ),
-                      ],
                     ),
                     const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ChoiceChip(
-                          label: Text(GearType.automatic.name),
-                          selected: gear == GearType.automatic,
-                          onSelected: (value) {
-                            setState(() {
-                              gear = GearType.automatic;
-                            });
-                          },
-                          avatar: const Icon(Icons.settings),
-                        ),
-                        ChoiceChip(
-                          label: Text(GearType.manual.name),
-                          selected: gear == GearType.manual,
-                          onSelected: (value) {
-                            setState(() {
-                              gear = GearType.manual;
-                            });
-                          },
-                          avatar: const Icon(Icons.settings),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 30),
             FilledButton.icon(
-                onPressed: setupAccount,
-                label: const Text("Finish"),
-                icon: const Icon(IconlyBold.arrowRight))
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  if (fullName.isEmpty ||
+                      workShopName.isEmpty ||
+                      serviceType.isEmpty) {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        const SnackBar(
+                            content: Text("Please fill in all fields")),
+                      );
+                    return;
+                  }
+                  print(
+                      "from account setup page $fullName $phoneNumber $workShopName");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WorkShopSetupPage(
+                        fullName: fullName,
+                        phoneNumber: phoneNumber,
+                        workshopName: workShopName,
+                        type: serviceType,
+                      ),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      const SnackBar(
+                          content: Text("Please fill in all fields correctly")),
+                    );
+                }
+              },
+              label: const Text("Next"),
+              icon: const Icon(IconlyBold.arrowRight),
+            )
           ],
         ),
       ),
