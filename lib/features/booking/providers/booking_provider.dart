@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../shared/entities/booking.dart';
@@ -28,16 +29,16 @@ class Appointments extends _$Appointments {
     final booking = db.collection('bookings').doc(bookingId);
     await booking.update(
         {'status': BookingStatus.cancelled.name, 'cancellationReason': reason});
-    print("finished updating booking");
+    debugPrint("finished updating booking");
     ref.invalidateSelf();
   }
 
   Future<void> acceptBooking(String bookingId) async {
-    print("state: ${state.value}");
-    print("bookingId: $bookingId");
+    debugPrint("state: ${state.value}");
+    debugPrint("bookingId: $bookingId");
     final booking = db.collection('bookings').doc(bookingId);
     await booking.update({'status': BookingStatus.confirmed.name});
-    print("finished updating booking");
+    debugPrint("finished updating booking");
     ref.invalidateSelf();
   }
 }

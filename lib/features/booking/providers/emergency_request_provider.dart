@@ -7,6 +7,7 @@ import '../../../shared/utils/constants.dart';
 part 'emergency_request_provider.g.dart';
 
 @riverpod
+// ignore: camel_case_types
 class onGoingEmergency extends _$onGoingEmergency {
   @override
   Stream<EmergencyRequest?> build() async* {
@@ -23,7 +24,6 @@ class onGoingEmergency extends _$onGoingEmergency {
       }
 
       final doc = snapshot.docs.first;
-      print(doc.data());
       return EmergencyRequest.fromMap(doc.data());
     });
   }

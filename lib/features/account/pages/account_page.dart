@@ -21,7 +21,6 @@ class AccountPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final user = ref.watch(accountProvider);
-    print("This is user ${user.value}");
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -47,7 +46,7 @@ class AccountPage extends ConsumerWidget {
                   },
                   titleTextStyle: theme.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.bold),
-                  title: Text(user.workshopName),
+                  title: Text(user.name),
                   trailing: const Icon(IconlyLight.edit),
                   leading: CircleAvatar(
                     radius: 25,

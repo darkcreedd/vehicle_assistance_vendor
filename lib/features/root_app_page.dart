@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:vehicle_assistance_vendor/features/booking/pages/bookings_page.dart';
 import 'package:vehicle_assistance_vendor/features/emergency/emergency_request_details_page.dart';
+import 'package:vehicle_assistance_vendor/shared/providers/bottom_tab_provider.dart';
 
 import '../shared/entities/emergency_request.dart';
 import '../shared/providers/account_provider.dart';
@@ -24,7 +25,8 @@ class RootAppPage extends ConsumerStatefulWidget {
 }
 
 class _RootAppPageState extends ConsumerState<RootAppPage> {
-  int currentIndex = 0;
+  // int currentIndex = 0;
+
   final pages = const [
     HomePage(),
     BookingsPage(),
@@ -50,36 +52,40 @@ class _RootAppPageState extends ConsumerState<RootAppPage> {
   }
 
   void _handleMessage(RemoteMessage message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-          const SnackBar(content: Text("You received a notification")));
-    print("interactive notification received");
-    if (message.data['type'] == 'review') {
-      // Navigator.pushNamed(context, '/chat',
-      //   arguments: ChatArguments(message),
-      // );
-    } else {}
+    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+    debugPrint("interactive notification received");
+    final type = message.data['type'];
+    if (type == 'CANCELLED') {
+      messenger.showSnackBar(const SnackBar(
+          content: Text("A booking with you has been cancelled.")));
+    } else if (type == 'EMERGENCY') {
+      messenger.showSnackBar(const SnackBar(
+          content: Text("You have received an emergency request.")));
+    } else {
+      messenger.showSnackBar(const SnackBar(
+          content: Text("You received a notification while you were away.")));
+    }
   }
 
   Future<void> setupForegroundMessage() async {
+    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-            const SnackBar(content: Text("You received a notification.")));
-      debugPrint('Got a message whilst in the foreground!');
-      debugPrint('Message data: ${message.data}');
-      if (message.notification != null) {
-        debugPrint(
-            'Message also contained a notification: ${message.notification}');
+      final type = message.data['type'];
+      if (type == 'CANCELLED') {
+        messenger.showSnackBar(const SnackBar(
+            content: Text("A booking with you has been cancelled")));
+      } else if (type == 'EMERGENCY') {
+        messenger.showSnackBar(const SnackBar(
+            content: Text("You have received an emergency notification.")));
+      } else {
+        messenger.showSnackBar(const SnackBar(
+            content: Text("You received a notification while you were away.")));
       }
     });
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     FCMFunctions.retrieveAndSaveFCMToken();
     setupInteractedMessage();
@@ -154,6 +160,7 @@ class _RootAppPageState extends ConsumerState<RootAppPage> {
   @override
   Widget build(BuildContext context) {
     final emergencyRequests = ref.watch(onGoingEmergencyProvider);
+    final currentIndex = ref.watch(bottomTabProvider);
     ref.watch(locationUpdaterProvider);
     final theme = Theme.of(context);
     ref.watch(accountProvider);
@@ -199,7 +206,7 @@ class _RootAppPageState extends ConsumerState<RootAppPage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: currentIndex,
-        onTap: (index) => setState(() => currentIndex = index),
+        onTap: ref.read(bottomTabProvider.notifier).setTab,
         items: [
           const BottomNavigationBarItem(
             icon: Icon(IconlyLight.home),

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:vehicle_assistance_vendor/shared/entities/service_provider.dart';
 
@@ -12,7 +13,7 @@ class Account extends _$Account {
     final userDoc =
         db.collection('serviceProviders').doc(auth.currentUser!.uid);
     final userSnapshot = await userDoc.get();
-    print("user snapshot exists: ${userSnapshot.exists}");
+    debugPrint("user snapshot exists: ${userSnapshot.exists}");
     if (userSnapshot.exists) {
       return ServiceProvider.fromMap(userSnapshot.data()!);
     }

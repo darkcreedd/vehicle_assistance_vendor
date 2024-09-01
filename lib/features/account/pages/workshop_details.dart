@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:vehicle_assistance_vendor/shared/entities/rating.dart';
 import 'package:vehicle_assistance_vendor/shared/providers/account_provider.dart';
+import '../../../shared/providers/review_provider.dart';
 import '/features/account/pages/reviews_page.dart';
 import '/features/services/add_services_page.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -16,6 +19,7 @@ class MyWorkShopPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appUserData = ref.read(accountProvider).value;
+    final reviewsAsync = ref.watch(reviewProviderProvider);
 
     final theme = Theme.of(context);
     return Scaffold(
@@ -59,13 +63,13 @@ class MyWorkShopPage extends ConsumerWidget {
                           0, // added default value for longitude
                     ),
                     builder: (context, snapshot) {
-                      print(
+                      debugPrint(
                           "lat ${appUserData?.latitude} long ${appUserData?.latitude}");
                       if (snapshot.connectionState == ConnectionState.done) {
                         if (snapshot.hasData) {
                           return Text(snapshot.data!); // added null safety
                         } else {
-                          print(snapshot.error);
+                          debugPrint(snapshot.error.toString());
                           return const Text("No data");
                         }
                       } else {
@@ -78,7 +82,16 @@ class MyWorkShopPage extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ActionChip(
-                        label: const Text("4.5"),
+                        label: switch (reviewsAsync) {
+                          AsyncData(value: final reviews) =>
+                            Text(averageRating(reviews)),
+                          AsyncError() => const CircleAvatar(
+                              backgroundColor: Colors.black,
+                            ),
+                          _ => const Center(
+                              child: CupertinoActivityIndicator(),
+                            )
+                        },
                         backgroundColor: theme.colorScheme.secondaryContainer
                             .withOpacity(0.5),
                         avatar: const Icon(
@@ -177,4 +190,12 @@ Future<String> getAddressFromLatLng(double? latitude, double? longitude) async {
   return "${place.street ?? ""}, ${place.subLocality ?? ""}, ${place.locality ?? ""},${place.country}"
       .trim()
       .replaceAll(RegExp(r'^,|,$'), '');
+}
+
+String averageRating(List<Rating> ratings) {
+  // Calculate the sum of all ratings
+  double sumOfRatings = ratings.fold(0, (sum, r) => sum + r.rating);
+
+  // Calculate and return the average rating
+  return (ratings.isEmpty ? 0 : sumOfRatings / ratings.length).toString();
 }

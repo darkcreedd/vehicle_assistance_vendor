@@ -60,6 +60,7 @@ class _OnboardingAddServicesPageState
           .collection('serviceProviders')
           .doc(widget.workshopDetails.userId)
           .set(widget.workshopDetails.toMap());
+      print('from add services to fb${widget.workshopDetails}');
     } else {
       debugPrint('User is not authenticated');
     }
@@ -137,8 +138,6 @@ class _OnboardingAddServicesPageState
                         if (selectedServices.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         } else {
-                          print(widget.workshopDetails.toMap());
-                          print(selectedServices);
                           writeWorkshopDetailsToServiceProviders();
                           Navigator.pushAndRemoveUntil(
                               context,

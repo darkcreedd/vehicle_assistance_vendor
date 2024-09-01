@@ -39,7 +39,7 @@ class _AddServicesPageState extends ConsumerState<AddServicesPage> {
   @override
   Widget build(BuildContext context) {
     final serviceProvider = ref.read(accountProvider.notifier);
-    final user = ref.watch(accountProvider);
+    // final user = ref.watch(accountProvider);
 
     return Scaffold(
       appBar: bottomSheetAppBar(context, "Add Services"),
@@ -123,10 +123,8 @@ class _AddServicesPageState extends ConsumerState<AddServicesPage> {
                             setState(() {
                               isLoading = true;
                             });
-                            print(selectedServices);
                             await serviceProvider
                                 .updateServices(selectedServices);
-                            print(user.value?.services);
                             if (!context.mounted) return;
                             showSuccessDialog(context).then(
                               (value) => Navigator.pushAndRemoveUntil(

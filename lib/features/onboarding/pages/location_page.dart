@@ -15,6 +15,7 @@ final googleMapControllerProvider =
   return Completer<GoogleMapController>();
 });
 
+// ignore: must_be_immutable
 class LocationPage extends ConsumerStatefulWidget {
   ServiceProvider serviceProviderDetails;
 
@@ -151,6 +152,8 @@ class _LocationPageState extends ConsumerState<LocationPage> {
               _controllerCompleter.complete(controller);
             },
             initialCameraPosition: CameraPosition(
+              // target: LatLng(6.6700696479255495, -1.55816949256451),
+
               target: LatLng(value.latitude, value.longitude),
               zoom: 18.4746,
             ),

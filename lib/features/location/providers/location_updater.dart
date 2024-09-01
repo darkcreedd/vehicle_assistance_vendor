@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -71,7 +72,7 @@ class LocationUpdater extends _$LocationUpdater {
       });
     } else {
       // Handle the case where the document does not exist
-      print('Document does not exist');
+      debugPrint('Document does not exist');
     }
   }
 }

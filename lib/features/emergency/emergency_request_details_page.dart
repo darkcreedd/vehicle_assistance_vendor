@@ -103,12 +103,12 @@ class EmergencyRequestDetailsPage extends ConsumerWidget {
                 FutureBuilder<String>(
                   future: getAddressFromLatLng(user.latitude, user.longitude),
                   builder: (context, snapshot) {
-                    print("lat ${user.latitude} long ${user.longitude}");
+                    debugPrint("lat ${user.latitude} long ${user.longitude}");
                     if (snapshot.connectionState == ConnectionState.done) {
                       if (snapshot.hasData) {
                         return Text(snapshot.data!); // added null safety
                       } else {
-                        print(snapshot.error);
+                        debugPrint(snapshot.error.toString());
                         return const Text("No data");
                       }
                     } else {

@@ -10,7 +10,7 @@ List<VehicleService> vehicleServices = [
   VehicleService(
       name: "engine", description: 'Engine Works', image: 'assets/engine.png'),
   VehicleService(
-      name: "body works",
+      name: "body-works",
       description: 'Body Works',
       image: 'assets/car_body.png'),
   VehicleService(

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,18 +15,19 @@ import '../widgets/workshop_timepicker.dart';
 import 'location_page.dart';
 
 class WorkShopSetupPage extends StatefulWidget {
-  const WorkShopSetupPage({
-    super.key,
-    required this.fullName,
-    required this.phoneNumber,
-    required this.workshopName,
-    required this.type,
-  });
+  const WorkShopSetupPage(
+      {super.key,
+      required this.fullName,
+      required this.phoneNumber,
+      required this.workshopName,
+      required this.type,
+      required this.idImage});
 
   final String fullName;
   final String phoneNumber;
   final String workshopName;
   final String type;
+  final File idImage;
 
   @override
   State<WorkShopSetupPage> createState() => WorkShopSetupPageState();
@@ -35,7 +37,7 @@ class WorkShopSetupPageState extends State<WorkShopSetupPage> {
   final GlobalKey<WorkShopSetupPageState> scaffoldKey = GlobalKey();
 
   File? image;
-  String? imagePath;
+  List<String>? imagePaths;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -50,34 +52,49 @@ class WorkShopSetupPageState extends State<WorkShopSetupPage> {
   }
 
   bool isLoading = false;
+  Future<List<String>> uploadImagesToFirebase(
+      {File? idCardImage, File? workShopImage}) async {
+    final context = scaffoldKey.currentContext ?? scaffoldKey.currentContext;
+    List<Future<String>> futures = [];
 
-  Future<void> uploadImageToFirebase(File image) async {
-    final context = scaffoldKey.currentContext;
     try {
-      Reference reference = FirebaseStorage.instance
+      Reference idCardReference = FirebaseStorage.instance
+          .ref()
+          .child("IDCards/${DateTime.now().microsecondsSinceEpoch}.png");
+      futures.add(idCardReference
+          .putFile(idCardImage!)
+          .then((_) => idCardReference.getDownloadURL()));
+
+      Reference workShopReference = FirebaseStorage.instance
           .ref()
           .child("workShopImages/${DateTime.now().microsecondsSinceEpoch}.png");
-      await reference.putFile(image).whenComplete(() {
-        if (context != null && context.mounted) {
-          ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(
-            SnackBar(
-              duration: const Duration(milliseconds: 2000),
-              content: const Text("Image captured"),
-              backgroundColor: Colors.green.withOpacity(.8),
-            ),
-          );
-        }
-      });
-      imagePath = await reference.getDownloadURL();
-    } catch (e) {
+      futures.add(workShopReference
+          .putFile(workShopImage!)
+          .then((_) => workShopReference.getDownloadURL()));
+
+      List<String> downloadUrls = await Future.wait(futures);
+
       if (context != null && context.mounted) {
-        ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(
-          const SnackBar(
-            content: Text(
-                "An error occured while saving selected image,try again later."),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(milliseconds: 2000),
+            content: const Text("Images captured"),
+            backgroundColor: Colors.green.withOpacity(.8),
           ),
         );
       }
+
+      return downloadUrls;
+    } catch (e) {
+      if (context != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                "An error occured while saving selected images,try again later."),
+          ),
+        );
+      }
+      rethrow;
     }
   }
 
@@ -136,9 +153,10 @@ class WorkShopSetupPageState extends State<WorkShopSetupPage> {
       workshopName: widget.workshopName,
       phone: widget.phoneNumber,
       userId: auth.currentUser!.uid,
+      idImage: imagePaths![0],
       latitude: 0,
       longitude: 0,
-      image: imagePath ?? "",
+      image: imagePaths![1],
       openingdates: structure,
       services: [],
     );
@@ -353,7 +371,12 @@ class WorkShopSetupPageState extends State<WorkShopSetupPage> {
                             setState(() {
                               isLoading = true;
                             });
-                            await uploadImageToFirebase(image!);
+                            print(widget.idImage);
+                            print(image);
+                            print(workshopDetails);
+                            imagePaths = await uploadImagesToFirebase(
+                                idCardImage: widget.idImage,
+                                workShopImage: image);
                             updateWorkShop();
                             if (!context.mounted) return;
                             Navigator.push(
@@ -368,9 +391,11 @@ class WorkShopSetupPageState extends State<WorkShopSetupPage> {
                             ScaffoldMessenger.of(context)
                               ..hideCurrentSnackBar()
                               ..showSnackBar(
-                                const SnackBar(
-                                  duration: Duration(milliseconds: 2000),
-                                  content: Text("Something terrible happened"),
+                                SnackBar(
+                                  duration: const Duration(milliseconds: 2000),
+                                  content: Text("error:${e.toString()}"),
+
+                                  // content: Text("Something terrible happened"),
                                 ),
                               );
                           } finally {
@@ -381,7 +406,7 @@ class WorkShopSetupPageState extends State<WorkShopSetupPage> {
                         }
                       : null,
                   label: isLoading
-                      ? const CircularProgressIndicator.adaptive()
+                      ? const CupertinoActivityIndicator()
                       : const Text("Next"),
                   icon: isLoading
                       ? const SizedBox.shrink()

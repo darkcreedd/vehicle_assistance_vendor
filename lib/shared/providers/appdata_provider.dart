@@ -8,6 +8,7 @@ class AppUserDataNotifier extends StateNotifier<ServiceProvider> {
           name: '',
           workshopName: '',
           phone: '',
+          idImage: '',
           latitude: 0,
           longitude: 0,
           image: '',

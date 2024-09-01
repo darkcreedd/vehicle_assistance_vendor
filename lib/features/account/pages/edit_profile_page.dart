@@ -58,13 +58,13 @@ class EditProfilePage extends ConsumerWidget {
                       0, // added default value for longitude
                 ),
                 builder: (context, snapshot) {
-                  print(
+                  debugPrint(
                       "lat ${appUserData?.latitude} long ${appUserData?.latitude}");
                   if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.hasData) {
                       return Text(snapshot.data!); // added null safety
                     } else {
-                      print(snapshot.error);
+                      debugPrint(snapshot.error.toString());
                       return const Text("No data");
                     }
                   } else {

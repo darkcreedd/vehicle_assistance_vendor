@@ -9,6 +9,8 @@ class ServiceProvider {
 
   final String image;
 
+  final String idImage;
+
   final List<String> services;
 
   final double longitude;
@@ -43,6 +45,7 @@ class ServiceProvider {
     required this.services,
     required this.image,
     required this.userId,
+    required this.idImage,
     required this.longitude,
     required this.latitude,
     required this.phone,
@@ -55,6 +58,7 @@ class ServiceProvider {
       'userId': userId,
       'name': name,
       'image': image,
+      'idImage': idImage,
       'services': services,
       'longitude': longitude,
       'latitude': latitude,
@@ -70,6 +74,7 @@ class ServiceProvider {
       name: map['name'] as String,
       image: map['image'] as String,
       phone: map['phone'] as String,
+      idImage: map['idImage'] as String,
       services: List<String>.from(map['services']),
       openingdates: map['openingdates'] as Map<String, dynamic>,
       workshopName: map['workshopName'] as String,
@@ -79,18 +84,20 @@ class ServiceProvider {
   }
   factory ServiceProvider.initial() {
     return ServiceProvider(
-      userId: "",
-      name: "",
-      image: "",
-      phone: "",
-      services: ['hmm'],
+      userId: "C5J159fpzqXaFAbrBFPGfLlCkW93",
+      name: "Mainoo",
+      image:
+          "https://images.pexels.com/photos/8470886/pexels-photo-8470886.jpeg?auto=compress&cs=tinysrgb&w=800",
+      phone: "0207644110",
+      idImage: "",
+      services: ['tyre', 'towing', 'engine', 'washing', 'fuel'],
       openingdates: {
         "startDay": "Mon",
         "endDay": "Fri",
         "startTime": "5:00 AM",
         "endTime": "Mon",
       },
-      workshopName: "Not Set",
+      workshopName: "Def Services",
       longitude: 0,
       latitude: 0,
     );
@@ -101,6 +108,7 @@ class ServiceProvider {
     String? workshopName,
     String? name,
     String? image,
+    String? idImage,
     List<String>? services,
     double? longitude,
     double? latitude,
@@ -112,6 +120,7 @@ class ServiceProvider {
       workshopName: workshopName ?? this.workshopName,
       name: name ?? this.name,
       image: image ?? this.image,
+      idImage: idImage ?? this.image,
       services: services ?? this.services,
       longitude: longitude ?? this.longitude,
       latitude: latitude ?? this.latitude,

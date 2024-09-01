@@ -14,8 +14,7 @@ class ServicesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(accountProvider);
-    print(user.value?.services);
-    print(user.value);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Services"),

@@ -7,7 +7,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vehicle_assistance_vendor/shared/utils/constants.dart';
 
 import '../../shared/entities/emergency_request.dart';
-import '../../shared/providers/account_provider.dart';
 import 'providers/service_provider_location_stream.dart';
 import 'providers/user_location_stream.dart';
 
@@ -117,7 +116,6 @@ class _EmergencyTrackingPageState extends ConsumerState<ViewLocationOnMap> {
     final providerLocationAsync = ref.watch(
         serviceProviderLocationStreamProvider(
             widget.emergencyRequest.providerId));
-    final appUserData = ref.read(accountProvider).value;
 
     return Scaffold(
       appBar: AppBar(

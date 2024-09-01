@@ -201,6 +201,7 @@ class WorkShopSetupPageState extends ConsumerState<WorkShopEditPage> {
                                 name: user.value!.name,
                                 services: user.value!.services,
                                 image: user.value!.image,
+                                idImage: user.value!.idImage,
                                 userId: user.value!.userId,
                                 longitude: user.value!.longitude,
                                 latitude: user.value!.latitude,

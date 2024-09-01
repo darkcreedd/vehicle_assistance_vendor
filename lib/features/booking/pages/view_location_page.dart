@@ -94,7 +94,7 @@ class LiveTrackingMapState extends ConsumerState<LiveTrackingMap> {
       var data = json.decode(response.body);
       _addPolyline(data);
     } else {
-      print('Failed to get directions: ${response.statusCode}');
+      debugPrint('Failed to get directions: ${response.statusCode}');
     }
   }
 
@@ -163,7 +163,7 @@ class LiveTrackingMapState extends ConsumerState<LiveTrackingMap> {
 
   @override
   Widget build(BuildContext context) {
-    final currentPosition = ref.watch(currentPositionProvider);
+    // final currentPosition = ref.watch(currentPositionProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Directions to Username')),

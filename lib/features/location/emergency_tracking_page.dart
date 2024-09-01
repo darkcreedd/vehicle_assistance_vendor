@@ -177,8 +177,8 @@ class _EmergencyTrackingPageState extends ConsumerState<EmergencyTrackingPage> {
     final customerLocation = ref.watch(
         serviceProviderLocationStreamProvider(widget.emergencyRequest.userId));
 
-    print("my location ${myLocation.value}");
-    print("customer location ${customerLocation.value}");
+    debugPrint("my location ${myLocation.value}");
+    debugPrint("customer location ${customerLocation.value}");
 
     return Scaffold(
       appBar: AppBar(

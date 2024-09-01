@@ -1,4 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -158,9 +161,11 @@ class _BookingDetailsPageState extends ConsumerState<BookingDetailsPage> {
                   width: double.maxFinite,
                   clipBehavior: Clip.hardEdge,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.black),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: CachedNetworkImage(
+                      progressIndicatorBuilder: (context, url, progress) =>
+                          const CupertinoActivityIndicator(),
                       fit: BoxFit.cover,
                       imageUrl: widget.singleBooking.imageUrl!),
                 )
@@ -246,7 +251,7 @@ class _BookingDetailsPageState extends ConsumerState<BookingDetailsPage> {
                         try {
                           await bookingProvider
                               .acceptBooking(widget.singleBooking.id);
-                          print(
+                          debugPrint(
                               'booking status ${widget.singleBooking.status}');
                           if (!context.mounted) return;
 
@@ -255,7 +260,7 @@ class _BookingDetailsPageState extends ConsumerState<BookingDetailsPage> {
 
                           // Navigator.pop(context);
                         } catch (e) {
-                          print(
+                          debugPrint(
                               'from booking details page, accept booking ${e.toString()}');
                         }
                       },
@@ -286,19 +291,28 @@ class _BookingDetailsPageState extends ConsumerState<BookingDetailsPage> {
                   onPressed: () async {
                     try {
                       final userLocation = await determinePosition();
-                      if (!context.mounted) return;
-
-                      Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => LiveTrackingMap(
-                            sourceLatitude: userLocation.latitude,
-                            sourceLongitude: userLocation.longitude,
-                            destinationLatitude: widget.singleBooking.userLat,
-                            destinationLongitude: widget.singleBooking.userLong,
+                      if (!(widget.singleBooking.status ==
+                          BookingStatus.cancelled)) {
+                        if (!context.mounted) return;
+                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => LiveTrackingMap(
+                              sourceLatitude: userLocation.latitude,
+                              sourceLongitude: userLocation.longitude,
+                              destinationLatitude: widget.singleBooking.userLat,
+                              destinationLongitude:
+                                  widget.singleBooking.userLong,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(const SnackBar(
+                              content: Text(
+                                  "Location unavailable for cancelled requests")));
+                      }
                     } catch (e) {
                       ScaffoldMessenger.of(context)
                         ..hideCurrentSnackBar()
